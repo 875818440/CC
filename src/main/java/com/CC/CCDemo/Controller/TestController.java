@@ -20,9 +20,9 @@ public class TestController {
 
     @RequestMapping("/toHello")
     public String toHello(ModelMap modelMap){
-        userRepository.save(new User("Mshu","123456","jin@qq.com","jin"));
+      // userRepository.save(new User("Mshu3","123456","jin@qq.com","jin3","1"));
         List<User> users = userRepository.findAll();
         modelMap.put("users",users);
-        return "helloBoot";
+        return users.get(0).getEmail()+"";
     }
 }
