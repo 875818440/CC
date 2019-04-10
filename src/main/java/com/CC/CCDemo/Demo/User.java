@@ -1,10 +1,21 @@
 package com.CC.CCDemo.Demo;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.*;
+import java.awt.print.Book;
 import java.io.Serializable;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="user")
+@EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -17,10 +28,30 @@ public class User implements Serializable {
     private String passWord;
     @Column(nullable = false)
     private String email;
-    @Column(nullable = true)
+    @Column
     private String nickName;
     @Column(nullable = false)
     private String regTime;
+    @CreatedDate
+    @Column(name = "create_date")
+    private Date createDate;
+    @LastModifiedDate
+    @Column(name = "update_Date")
+    private Date updateDate;
+    @ManyToMany(cascade = {CascadeType.ALL},fetch=FetchType.LAZY)
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles= new HashSet<Role>();
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 
     public User() {
     }

@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 public class TestController {
     @Autowired
     UserService userService;
+
     @RequestMapping("/test")
     public String test(){
         return "/test";
@@ -26,9 +27,20 @@ public class TestController {
 
     @RequestMapping("/toHello")
     public String toHello(ModelMap modelMap){
-        List<User> list=userService.findStudentByName("Mshu2");
+       /// List<User> list=userService.findStudentByName("Mshu2");
         Long  id=new Long("3");
-      //  Optional<User> user=userService.findById(id);
-        return "1";
+       /// Optional<User> user=userService.findById(id);
+       // List<User> users=userService.findByRegTime("1");
+        User user =new User();
+        user.setEmail("jin@qq.com");
+        user.setNickName("jin4");
+        user.setPassWord("123");
+        user.setRegTime("1");
+        user.setUserName("Mshu4");
+       //  userService.saveUser(user);
+       // userService.updateById();
+       // userService.findAndUpdateById(Long.parseLong("7"));
+        userService.saveUserRole();
+       return  userService.buildPageRequest();
     }
 }
