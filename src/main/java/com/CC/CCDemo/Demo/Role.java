@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name="role")
@@ -23,6 +25,20 @@ public class Role implements Serializable {
     @Column
     @LastModifiedDate
     private Date updateDate;
+    @ManyToMany(cascade = {CascadeType.ALL},fetch=FetchType.LAZY)
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<Role> users= new HashSet<>();
+
+    public Set<Role> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<Role> users) {
+        this.users = users;
+    }
 
     public Role() {
     }

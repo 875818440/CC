@@ -30,6 +30,8 @@ public class User implements Serializable {
     private String email;
     @Column
     private String nickName;
+    @Column
+    private Date birthday;
     @Column(nullable = false)
     private String regTime;
     @CreatedDate
@@ -44,6 +46,19 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles= new HashSet<Role>();
+    @ManyToMany(cascade = {CascadeType.ALL},fetch=FetchType.LAZY)
+    @JoinTable(name = "user_area",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "area_id")
+    )
+    private Set<Area> areas= new HashSet<Area>();
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
 
     public Set<Role> getRoles() {
         return roles;
@@ -62,6 +77,30 @@ public class User implements Serializable {
         this.email = email;
         this.nickName = nickName;
         this.regTime = regTime;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public Set<Area> getAreas() {
+        return areas;
+    }
+
+    public void setAreas(Set<Area> areas) {
+        this.areas = areas;
     }
 
     public Long getId() {

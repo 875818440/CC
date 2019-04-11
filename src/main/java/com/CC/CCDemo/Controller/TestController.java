@@ -1,6 +1,8 @@
 package com.CC.CCDemo.Controller;
 
 import com.CC.CCDemo.Dao.UserDao;
+import com.CC.CCDemo.Demo.Area;
+import com.CC.CCDemo.Demo.Role;
 import com.CC.CCDemo.Demo.User;
 import com.CC.CCDemo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +34,28 @@ public class TestController {
        /// Optional<User> user=userService.findById(id);
        // List<User> users=userService.findByRegTime("1");
         User user =new User();
-        user.setEmail("jin@qq.com");
-        user.setNickName("jin4");
-        user.setPassWord("123");
-        user.setRegTime("1");
-        user.setUserName("Mshu4");
+        user.setId(Long.parseLong("7"));
        //  userService.saveUser(user);
        // userService.updateById();
        // userService.findAndUpdateById(Long.parseLong("7"));
-        userService.saveUserRole();
-       return  userService.buildPageRequest();
+       // userService.saveUserRole();
+         Area areaQue=new Area();
+        areaQue.setAreaName("上海浦东新区");
+        areaQue.setId(1);
+        areaQue.setStatus(0);
+         List<User> users=userService.findAll(user,24,areaQue);
+         StringJoiner  areaJoiner=new StringJoiner("-");
+        StringJoiner  roleJoiner=new StringJoiner(",");
+        for (User user1:users) {
+            for (Area area:user1.getAreas()
+                 ) {
+                areaJoiner.add(area.getAreaName());
+            }
+            for (Role role:user1.getRoles()
+                 ) {
+                roleJoiner.add(role.getRoleName());
+            }
+        }
+       return  areaJoiner+"/////"+roleJoiner;
     }
 }
