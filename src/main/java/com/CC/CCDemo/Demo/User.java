@@ -40,7 +40,7 @@ public class User implements Serializable {
     @LastModifiedDate
     @Column(name = "update_Date")
     private Date updateDate;
-    @ManyToMany(cascade = {CascadeType.ALL},fetch=FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.ALL},fetch=FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")

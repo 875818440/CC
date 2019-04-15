@@ -1,22 +1,19 @@
 package com.CC.CCDemo.Service;
 
 import com.CC.CCDemo.Dao.RoleDao;
-import com.CC.CCDemo.Dao.UserDao;
+import com.CC.CCDemo.Dao.UserRepository;
 import com.CC.CCDemo.Demo.Area;
 import com.CC.CCDemo.Demo.Role;
 import com.CC.CCDemo.Demo.SortDto;
 import com.CC.CCDemo.Demo.User;
 import com.CC.CCDemo.SortTools;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.util.StringUtils;
-import org.w3c.dom.ranges.Range;
 
 import javax.persistence.criteria.*;
 import java.util.*;
@@ -26,12 +23,10 @@ import java.util.*;
 @Transactional
 public class UserService {
     @Autowired
-    private UserDao userDao;
+    private UserRepository userDao;
     @Autowired
     private RoleDao roleDao;
-    public List<User> findStudentByName(String name){
-        return userDao.findByUserName(name);
-    }
+
     public Optional<User> findById(Long Id){
         return userDao.findById(Id);
     }
@@ -101,6 +96,9 @@ public class UserService {
         user = userOptional.orElseGet(User::new);
         user.setNickName("test111");
         userDao.save(user);
+    }
+    public User findByUserName(String userName){
+        return userDao.findByUserName(userName);
     }
     public List<User> findByRegTime(String regTime){
         return userDao.findByRegTime(regTime);

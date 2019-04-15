@@ -15,9 +15,12 @@ import java.util.List;
 import java.util.Optional;
 
 
-public interface UserDao extends JpaRepository<User,Long>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User,Long>, JpaSpecificationExecutor<User> {
 
-    List<User> findByUserName(String name);
+
+
+     User findByUserName(String name);
+
 
     Optional<User> findById(Long id);
 

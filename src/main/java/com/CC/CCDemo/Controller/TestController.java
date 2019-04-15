@@ -1,6 +1,5 @@
 package com.CC.CCDemo.Controller;
 
-import com.CC.CCDemo.Dao.UserDao;
 import com.CC.CCDemo.Demo.Area;
 import com.CC.CCDemo.Demo.Role;
 import com.CC.CCDemo.Demo.User;
@@ -10,11 +9,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 @RestController
