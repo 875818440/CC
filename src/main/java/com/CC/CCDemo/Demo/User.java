@@ -26,13 +26,13 @@ public class User implements Serializable {
     private String userName;
     @Column(nullable = false)
     private String passWord;
-    @Column(nullable = false)
+    @Column
     private String email;
     @Column
     private String nickName;
     @Column
     private Date birthday;
-    @Column(nullable = false)
+    @Column
     private String regTime;
     @CreatedDate
     @Column(name = "create_date")

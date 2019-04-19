@@ -10,6 +10,7 @@ import com.CC.CCDemo.SortTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,6 +106,16 @@ public class UserService {
     }
     public void saveUser(User user){
         userDao.save(user);
+    }
+    public void addUser(User userForm){
+        String passWord=new BCryptPasswordEncoder().encode(userForm.getPassWord());
+        userForm.setPassWord(passWord);
+        userDao.save(userForm);
+    }
+    private void encryptPassword(User userInfo){
+        String password = userInfo.getPassWord();
+        password = new BCryptPasswordEncoder().encode(password);
+        userInfo.setPassWord(password);
     }
     public void updateById(){
         User user=new User();

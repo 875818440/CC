@@ -1,37 +1,75 @@
 package com.CC.CCDemo.Controller;
 
+import com.CC.CCDemo.Config.SecurityProperties;
+import com.CC.CCDemo.Config.WebSecurityConfig;
 import com.CC.CCDemo.Demo.User;
+import com.CC.CCDemo.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Controller
 public class LoginController {
-    private Logger logger = LoggerFactory.getLogger(LoginController.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+    private RequestCache requestCache = new HttpSessionRequestCache();
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-    @RequestMapping("/")
-    public String showHome() {
-        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+    @Autowired
+    private SecurityProperties securityProperties;
 
-        logger.info("当前登陆用户：" + name);
+    @Autowired
+    private UserService userService;
 
-        return "home.html";
+    @RequestMapping("/logintype")
+    @ResponseBody
+    @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+    public String requireAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        SavedRequest savedRequest = requestCache.getRequest(request, response);
+        if (savedRequest != null||(savedRequest!=null&&("addUser".contains(savedRequest.getRedirectUrl())||"addUser_html".contains(savedRequest.getRedirectUrl())))) {
+            String targetUrl =  savedRequest.getRedirectUrl();
+            logger.info("引发跳转的请求是：" + targetUrl);
+            //if (StringUtils.endsWithIgnoreCase(targetUrl, ".html")) {
+                redirectStrategy.sendRedirect(request, response, securityProperties.getBrower().getLoginPage());
+          //  }
+        }
+        return "请登录!";
     }
 
-    @RequestMapping("/login")
-    public String showLogin() {
-        return "login.html";
+
+    @GetMapping("/home_html")
+    public String homeHtml(){
+        return "home";
+    }
+
+    @GetMapping("/login_html")
+    public String loginHtml(){
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public void login(){
+    }
+    @RequestMapping("/addUser_html")
+    public String addUserHtml(){
+        return "addUser";
+    }
+    @RequestMapping("/addUser")
+    public void addUser(User userForm){
+        userService.addUser(userForm);
     }
 
     @RequestMapping("/admin")

@@ -1,8 +1,14 @@
 package com.CC.CCDemo.Config;
 
 
+import com.CC.CCDemo.Dao.UserRepository;
+import com.CC.CCDemo.Demo.User;
 import com.CC.CCDemo.Service.MyUserDetailsService;
+import com.CC.CCDemo.security.SecurityUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -10,8 +16,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 
 /**
@@ -21,49 +38,63 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
     @Autowired
     private MyUserDetailsService myUserDetailsService;
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //new BCryptPasswordEncoder())   加密   PasswordEncoder 明码
-        auth.userDetailsService(myUserDetailsService).passwordEncoder(new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence charSequence) {
-                return charSequence.toString();
-            }
+    @Autowired
+    private SecurityProperties securityProperties;
+    @Autowired
+    private EvolutionaryAuthenticationSuccessHandler evolutionaryAuthenticationSuccessHandler;
 
-            @Override
-            public boolean matches(CharSequence charSequence, String s) {
-                return s.equals(charSequence.toString());
-            }
-        });
-    }
-
+    /**
+     * 1）HttpSecurity支持cors。
+     * 2）默认会启用CRSF，此处因为没有使用thymeleaf模板（会自动注入_csrf参数），
+     * 要先禁用csrf，否则登录时需要_csrf参数，而导致登录失败。
+     * 3）antMatchers：匹配 "/" 路径，不需要权限即可访问，匹配 "/user" 及其以下所有路径，
+     * 都需要 "USER" 权限
+     * 4）配置登录地址和退出地址
+     */
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http
+//                .cors().and()
+//                .csrf().disable()
+//                .authorizeRequests()
+//                .antMatchers("/").permitAll()
+//                .antMatchers("/user/**").hasRole("USER")
+//                .and()
+//                .formLogin().loginPage("/login").defaultSuccessUrl("/hello")
+//                .and()
+//                .logout().logoutUrl("/logout").logoutSuccessUrl("/login");
+//    }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                // 如果有允许匿名的url，填在下面
-//                .antMatchers().permitAll()
-                .anyRequest().authenticated()
+        http.formLogin()  //表单登录
+                //.loginPage("/evolutionary-loginIn.html")
+                .loginPage("/logintype") //如果需要身份认证则跳转到这里
+                .loginProcessingUrl("/login")
+                .successHandler(evolutionaryAuthenticationSuccessHandler)
+                //   .failureHandler(evolutionaryAuthenticationFailureHandler)
+                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/login")
                 .and()
-                // 设置登陆页
-                .formLogin().loginPage("/login")
-                // 设置登陆成功页
-                .defaultSuccessUrl("/").permitAll()
-                // 自定义登陆用户名和密码参数，默认为username和password
-//                .usernameParameter("username")
-//                .passwordParameter("password")
-                .and()
-                .logout().permitAll();
-
-        // 关闭CSRF跨域
-        http.csrf().disable();
+                .authorizeRequests()
+                .antMatchers("/logintype", securityProperties.getBrower().getLoginPage())//不校验我们配置的登录页面
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and().csrf().disable();
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
-        // 设置拦截忽略文件夹，可以对静态资源放行
-        web.ignoring().antMatchers("/css/**", "/js/**");
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(myUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
+    /**
+     * 密码加密
+     */
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
